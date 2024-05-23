@@ -1,0 +1,185 @@
+<<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control de Temperatura y Relay</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: rgba(128, 128, 128, 0.5) url('https://static.vecteezy.com/system/resources/thumbnails/008/563/473/small/touching-the-hand-of-a-business-woman-s-thumb-available-support-customer-support-call-center-business-technology-button-on-bokeh-background-virtual-screen-concept-photo.jpg') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    .container {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      color: #333;
+      font-size: 2.5em;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 50%;
+      margin: 0 auto 20px auto;
+      border-collapse: collapse;
+    }
+
+    td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      font-size: 1.2em;
+      text-align: center;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 10px 5px;
+      font-size: 1em;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+
+    .button1 {
+      background-color: #ffeb3b;
+    }
+
+    .button1:hover {
+      background-color: #fdd835;
+    }
+
+    .button2 {
+      background-color: #03a9f4;
+    }
+
+    .button2:hover {
+      background-color: #039be5;
+    }
+
+    .button3 {
+      background-color: #f44336;
+    }
+
+    .button3:hover {
+      background-color: #e53935;
+    }
+
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .led-control {
+      margin-top: 20px;
+    }
+
+    .led-control p {
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>csx.app</h1>
+    <div style="display: flex; justify-content: center; align-items: center;">
+      <table>
+        <tr>
+          <td>Temperatura:</td>
+          <td><span id="temp">--</span> °C</td>
+        </tr>
+        <tr>
+          <td>Humedad:</td>
+          <td><span id="hum">--</span> %</td>
+        </tr>
+        <tr>
+          <td>Velocidad de LED:</td>
+          <td><span id="potValue">5</span></td>
+        </tr>
+      </table>
+      <div class="button-container">
+        <button class="button1" onclick="controlLed(1)">prueba 1</button>
+        <button class="button2" onclick="controlLed(2)">prueba 2</button>
+        <button class="button3" onclick="controlLed(3)">Encender Bombillo</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+      updateSensorData();
+      updateButtonStates();
+      updatePotValue();
+      setInterval(updateSensorData, 2000);
+      setInterval(updateButtonStates, 1000);
+      setInterval(updatePotValue, 500);
+    });
+
+    function updateSensorData() {
+      fetch('/data')
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('temp').innerText = data.temperature;
+          document.getElementById('hum').innerText = data.humidity;
+        });
+    }
+
+    function updateButtonStates() {
+      fetch('/buttons')
+        .then(response => response.json())
+        .then(data => {
+          if (data.button1) {
+            document.body.style.backgroundColor = '#ffeb3b';
+          } else {
+            document.body.style.backgroundColor = '#fbc02d';
+          }
+          if (data.button2) {
+            document.body.style.backgroundColor = '#03a9f4';
+          } else {
+            document.body.style.backgroundColor = '#0288d1';
+          }
+          if (data.button3) {
+            document.body.style.backgroundColor = '#f44336';
+          } else {
+            document.body.style.backgroundColor = '#d32f2f';
+          }
+        });
+    }
+
+    function updatePotValue() {
+      fetch('/pot')
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('potValue').innerText = data.potValue;
+        });
+    }
+
+    function controlLed(sequence) {
+      let potValue = document.getElementById('potValue').innerText;
+      fetch('/leds', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ sequence: sequence, speed: potValue })
+      });
+    }
+  </script>
+</body>
+</html>

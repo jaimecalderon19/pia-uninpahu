@@ -1,0 +1,172 @@
+/* Main CSS for CsxService */
+
+/* General styles */
+body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9;
+}
+
+a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+a:hover {
+    color: #0056b3;
+}
+
+.row{
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+.col-8{
+    width: 80%;
+}
+
+/* Container */
+.container {
+    width: 85%;
+    margin: auto;
+    overflow: hidden;
+}
+
+/* Header */
+#header {
+    background: #333;
+    color: #fff;
+    padding: 20px 0;
+}
+
+#header h1 {
+    margin: 0;
+    font-size: 2.5em;
+    text-align: center;
+}
+
+#nav {
+    text-align: center;
+    margin-top: 10px;
+}
+
+#nav a {
+    color: #fff;
+    display: inline-block;
+    margin: 0 15px;
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+
+#nav a:hover {
+    background: #007bff;
+}
+
+/* Banner */
+#banner {
+    background: url('../images/banner.jpg') no-repeat center center/cover;
+    color: #fff;
+    padding: 100px 0;
+    text-align: center;
+}
+
+#banner p {
+    font-size: 1.2em;
+}
+
+.button-large {
+    background: #007bff;
+    color: #fff;
+    padding: 15px 25px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.button-large:hover {
+    background: #0056b3;
+}
+
+/* Features */
+#features {
+    padding: 60px 0;
+}
+
+#features .col-3 {
+    margin-bottom: 20px;
+}
+
+#features h2 {
+    color: #333;
+}
+
+#features p {
+    color: #666;
+}
+
+/* Content */
+#content {
+    background: #fff;
+    padding: 60px 0;
+}
+
+#content h2, #content h3 {
+    color: #333;
+}
+
+.check-list, .quote-list {
+    list-style: none;
+    padding: 0;
+}
+
+.check-list li {
+    background: url('../images/check.png') no-repeat left center;
+    padding-left: 30px;
+    margin-bottom: 10px;
+}
+
+.quote-list li {
+    border-left: 5px solid #007bff;
+    padding-left: 10px;
+    margin-bottom: 20px;
+}
+
+.quote-list img {
+    float: left;
+    margin-right: 10px;
+    border-radius: 50%;
+}
+
+.quote-list p {
+    font-style: italic;
+}
+
+/* Footer */
+#footer {
+    background: #333;
+    color: #fff;
+    padding: 20px 0;
+    text-align: center;
+}
+
+#footer h2 {
+    color: #fff;
+}
+
+#footer .link-list {
+    list-style: none;
+    padding: 0;
+    text-align: left;
+}
+
+#footer .link-list a {
+    color: #fff;
+}
+
+#footer .link-list a:hover {
+    color: #007bff;
+}

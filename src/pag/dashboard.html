@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dispositivos Disponibles - CsxService</title>
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+</head>
+<body>
+    <div id="app">
+        <header>
+            <div class="header-container">
+                <h1>CsxService</h1>
+                <p @click="cerrarSeccion()" >Cerrar sección</p>
+            </div>
+        </header>
+        <main>
+            <div class="main-container">
+                <div class="title-and-button">
+                    <h2>Dispositivos disponibles</h2>
+                    <button class="add-button" @click="showModal = true">Agregar</button>
+                </div>
+                <div class="device-container">
+                    <div class="device-card" v-for="device in devices" :key="device.id">
+                        <div class="container-img">
+                            <img :src="device.image" alt="Imagen del dispositivo">
+                        </div>
+                        <p>{{ device.name }}</p>
+                        <button class="delete-button" @click="removeDevice(device._id)">Eliminar</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Modal -->
+        <div v-if="showModal" class="modal-overlay">
+            <div class="modal-container">
+                <h3>Agregar Dispositivo</h3>
+                <label for="device-name">Nombre del dispositivo:</label>
+                <input type="text" id="device-name" v-model="newDevice.name" required>
+                
+                <label for="device-description">Descripción del dispositivo:</label>
+                <textarea id="device-description" v-model="newDevice.description"></textarea>
+
+                <label for="device-type">Tipo de dispositivo:</label>
+                <select id="device-type" v-model="newDevice.type" required>
+                    <option value="Arduino">Arduino</option>
+                    <option value="ESP32">ESP32</option>
+                    <option value="Raspberry Pi">Raspberry Pi</option>
+                    <option value="Otro">Otro</option>
+                </select>
+
+                <label for="device-image">Imagen del dispositivo:</label>
+                <input type="file" id="device-image" accept="image/*" @change="handleImageUpload" required>
+                <img class="image-preview" :src="imagePreview" alt="Preview" v-if="imagePreview">
+
+                <button @click="addDevice">Guardar</button>
+                <button @click="showModal = false">Cancelar</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Verificar si el ID de usuario está presente en el almacenamiento local
+            const userId = localStorage.getItem('user_id');
+            if (!userId) {
+                // Si el ID de usuario no está presente, redirigir al usuario a la página de inicio de sesión
+                window.location.href = '/login';
+            }
+
+           
+            // Hacer la solicitud GET para obtener los dispositivos del usuario
+            fetch('/devices?user_id=' + userId, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Error al obtener dispositivos');
+                }
+            })
+            .then(data => {
+                // Actualizar la lista de dispositivos en Vue.js con los datos recibidos del servidor
+                app.devices = data;
+            })
+            .catch(error => {
+                console.error('Hubo un error:', error);
+            });
+    
+            // Inicializar la instancia de Vue.js
+            const app = new Vue({
+                el: '#app',
+                data: {
+                    showModal: false,
+                    newDevice: {
+                        name: '',
+                        description: '',
+                        type: '',
+                        image: '',
+                    },
+                    imagePreview: '',
+                    devices: [] // Inicialmente vacío, se actualizará con los dispositivos del servidor
+                },
+                methods: {
+                    addDevice() {
+                        if (this.newDevice.name && this.newDevice.type && this.newDevice.image) {
+                            this.newDevice.owner = userId
+                            fetch('/devices', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(this.newDevice)
+                            })
+                            .then(response => {
+                                if (response.ok) {
+                                    return response.json(); // Parsear la respuesta como JSON
+                                } else {
+                                    throw new Error('Error al guardar el dispositivo');
+                                }
+                            }).then(data => {
+                                // Agregar el nuevo dispositivo al array de dispositivos en el cliente
+                                this.devices.push(data.data); // Suponiendo que la respuesta contiene un objeto 'data' con el nuevo dispositivo
+                                // Reiniciar los campos del nuevo dispositivo y cerrar el modal
+                                this.newDevice.name = '';
+                                this.newDevice.description = '';
+                                this.newDevice.type = '';
+                                this.newDevice.image = '';
+                                this.imagePreview = '';
+                                this.showModal = false;
+                            })
+                            .catch(error => {
+                                alert('Hubo un error al guardar el dispositivo. Por favor, inténtalo de nuevo.');
+                                console.error('Error al guardar el dispositivo:', error);
+                            });
+                        } else {
+                            alert('Por favor, complete todos los campos.');
+                        }
+                    },
+                    removeDevice(id) {
+                        console.log(id);
+                        fetch('/devices/' + id, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                return response.json();
+                            } else {
+                                throw new Error('Error al obtener dispositivos');
+                            }
+                        })
+                        .then(data => {
+                            this.devices = this.devices.filter(device => device._id !== id);
+                        })
+                        .catch(error => {
+                            alert("Hubo un error al eliminar el dispositivo.")
+                        });
+                    },
+                    cerrarSeccion() {
+                    // Eliminar el ID de usuario del almacenamiento local
+                        localStorage.removeItem('user_id');
+
+                        // Redirigir al usuario a la página de inicio de sesión
+                        window.location.href = '/login';
+                    },
+                    handleImageUpload(event) {
+                        const file = event.target.files[0];
+                        if (file) {
+                            // Convertir la imagen a Base64
+                            const reader = new FileReader();
+                            reader.readAsDataURL(file);
+                            reader.onload = () => {
+                                this.newDevice.image = reader.result;
+                                this.imagePreview = reader.result;
+                            };
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+    
+
+</body>
+</html>
