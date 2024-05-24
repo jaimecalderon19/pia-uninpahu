@@ -22,13 +22,15 @@
                     <button class="add-button" @click="showModal = true">Agregar</button>
                 </div>
                 <div class="device-container">
-                    <div class="device-card" v-for="device in devices" :key="device.id">
-                        <div class="container-img">
-                            <img :src="device.image" alt="Imagen del dispositivo">
+                    <a href="link" target="_blank" rel="noopener noreferrer">
+                        <div class="device-card" v-for="device in devices" :key="device.id">
+                            <div class="container-img">
+                                <img :src="device.image" alt="Imagen del dispositivo">
+                            </div>
+                            <p>{{ device.name }}</p>
+                            <button class="delete-button" @click="removeDevice(device._id)">Eliminar</button>
                         </div>
-                        <p>{{ device.name }}</p>
-                        <button class="delete-button" @click="removeDevice(device._id)">Eliminar</button>
-                    </div>
+                    </a>
                 </div>
             </div>
         </main>
